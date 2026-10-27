@@ -96,8 +96,6 @@ export async function PUT(req: NextRequest) {
   }
   if (yrow.closingOdometer !== null && endKm !== null && endKm > yrow.closingOdometer)
     return NextResponse.json({ error: "Stand hoger dan sluitstand." }, { status: 422 });
-  if (priveKm !== null && startKm !== null && endKm !== null && priveKm > endKm - startKm)
-    return NextResponse.json({ error: "Privé-kilometers mogen het dagtotaal niet overschrijden." }, { status: 422 });
 
   const updated = await prisma.trip.update({
     where: { yearId_month_day: { yearId: yrow.id, month, day } },
