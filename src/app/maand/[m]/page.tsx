@@ -227,25 +227,11 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
               </section>
 
               <aside className="og-aside">
-                <div className="og-tot2">
-                  <div className="stack">
-                    <div className="og-pill lbl og-serif">WERK</div>
-                    <div className="og-pill val og-num hot">{nls(stat1)}</div>
-                  </div>
-                  <div className="stack">
-                    <div className="og-pill lbl og-serif">PRIVÉ</div>
-                    <div className="og-pill val og-num">{nls(stat2)}</div>
-                  </div>
-                </div>
                 <div className="og-pill og-mlbl og-serif">kies een maand</div>
                 <div className="month-picker" style={{ margin: "0 4px" }}>
                   {MONTHS_T.map((mn, i) => (
                     <a key={mn} href={`/maand/${i + 1}?y=${year}`} className={i + 1 === m ? "current" : ""}>{mn.toUpperCase()}</a>
                   ))}
-                </div>
-                <div className="og-pnrow">
-                  <a className="og-pill og-pn" href={`/maand/${prev.m}?y=${prev.y}`}>◀&nbsp; {MONTHS_T[prev.m - 1].toUpperCase()}</a>
-                  <a className="og-pill og-pn" href={`/maand/${next.m}?y=${next.y}`}>{MONTHS_T[next.m - 1].toUpperCase()} &nbsp;▶</a>
                 </div>
                 <div className="og-pill og-leg"><span className="dot" /> geregistreerd &nbsp;·&nbsp; <span style={{ color: "#ff8d84", fontWeight: 700 }}>za / zo</span> weekend &nbsp;·&nbsp; {gereg} / {dagen.length} dagen</div>
                 <div className="og-pill og-leg">Kilometerstand 1 {MONTHS_T[next.m - 1].toLowerCase()} wordt automatisch herberekend</div>
