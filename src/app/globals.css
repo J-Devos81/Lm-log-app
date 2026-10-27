@@ -286,12 +286,12 @@ a { color: inherit; }
 .og-zone-h .l { font-size: 11px; font-weight: 700; letter-spacing: 2.4px; color: #ff8d84; text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 8px rgba(0,0,0,.5); }
 .og-zone-h .r { font-size: 12px; color: #e9ecef; opacity: .92; text-shadow: 0 1px 3px rgba(0,0,0,.9); }
 .og-tables { display: block; }
-.og-dagkolom { max-height: calc(100vh - 400px); min-height: 320px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; scrollbar-color: #d92c23 rgba(255,255,255,.06); }
+.og-dagkolom { max-height: calc(100vh - 400px); min-height: 320px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; scrollbar-color: #8a8f98 rgba(255,255,255,.06); }
 .og-dagkolom::-webkit-scrollbar { width: 10px; }
 .og-dagkolom::-webkit-scrollbar-track { background: rgba(255,255,255,.05); border-radius: 999px; }
-.og-dagkolom::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#ff4b3e,#d92c23); border-radius: 999px; box-shadow: 0 0 8px rgba(255,75,62,.5); }
+.og-dagkolom::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#b9bec7,#6d737d); border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
 .og-dagkolom .og-drow.head { position: sticky; top: 0; z-index: 2; }
-.og-drow { display: grid; grid-template-columns: 104px 54px minmax(0,1fr) minmax(0,1fr) 116px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
+.og-drow { display: grid; grid-template-columns: 54px 104px minmax(0,1fr) minmax(0,1fr) 116px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
 .og-drow.head { height: 30px; margin-bottom: 8px; font-size: 14.5px; letter-spacing: 1.2px; }
 .og-drow .c { text-align: center; font-size: 15.5px; }
 .og-drow .dag { font-size: 16px; letter-spacing: .5px; }

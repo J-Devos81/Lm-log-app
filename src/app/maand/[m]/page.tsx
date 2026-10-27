@@ -19,6 +19,8 @@ interface Overview {
 }
 
 const nls = (n: number) => n.toLocaleString("nl-BE");
+const fmtDate = (day: number, mo: number, yr: number) =>
+  `${String(day).padStart(2, "0")}/${String(mo).padStart(2, "0")}/${yr}`;
 
 export default function MaandPage({ params }: { params: Promise<{ m: string }> }) {
   const router = useRouter();
@@ -91,13 +93,13 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
     const has = d.total !== null;
     return (
       <div className={"og-pill og-drow" + (has ? " hot" : d.weekend ? " wknd" : "")}>
-        <div className="c og-serif dag">{String(d.day).padStart(2, "0")}<span className="wd">{wds[new Date(d.date.split("-").reverse().join("-")).getDay()]}</span></div>
         <select className="c og-serif" value={d.dayNight} disabled={!!data?.closed} aria-label="D/N"
           style={{ background: "transparent", border: "none", color: "inherit", fontWeight: 700, cursor: data?.closed ? "default" : "pointer", opacity: has || !d.weekend ? 1 : .62 }}
           onChange={e => quickEdit(d.day, { dayNight: e.target.value as "D" | "N" })}>
           <option value="D">D</option>
           <option value="N">N</option>
         </select>
+        <div className="c og-serif dag">{fmtDate(d.day, m, year)}</div>
         <input className="c og-serif" inputMode="numeric" placeholder="–" value={d.startKm ?? ""} disabled={!!data?.closed}
           style={{ background: "transparent", border: "none", color: "inherit", textAlign: "center", width: "100%", opacity: has ? 1 : .45 }}
           onChange={e => { const v = e.target.value.replace(/\D/g, ""); quickEdit(d.day, { startKm: v === "" ? null : Number(v) }); }} />
@@ -170,12 +172,12 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
         <div className="og-main">
           <section style={{ minWidth: 0 }}>
             <div className="og-zone-h">
-              <span className="l">DAGREGISTRATIE 01&thinsp;—&thinsp;{String(dagen.length).padStart(2, "0")} {MONTHS[m - 1]} · TABELWEERGAVE</span>
+              <span className="l">MAANDOVERZICHT {String(1).padStart(2, "0")}&thinsp;—&thinsp;{String(dagen.length).padStart(2, "0")} {MONTHS[m - 1]} · TABELWEERGAVE</span>
               <span className="r">Weekends gemarkeerd · vul km-standen direct in</span>
             </div>
             <div className="og-tables">
               <div className="og-dagkolom">
-                <div className="og-pill og-drow head"><div className="c og-serif">DAG</div><div className="c og-serif">D/N</div><div className="c og-serif">START</div><div className="c og-serif">EIND</div><div className="c og-serif">TOTAAL</div></div>
+                <div className="og-pill og-drow head"><div className="c og-serif">D/N</div><div className="c og-serif">DAG</div><div className="c og-serif">START</div><div className="c og-serif">EIND</div><div className="c og-serif">TOTAAL</div></div>
                 {dagen.map(d => <Row key={d.day} d={d} />)}
               </div>
             </div>
