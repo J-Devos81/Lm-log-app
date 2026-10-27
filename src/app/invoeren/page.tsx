@@ -128,9 +128,17 @@ export default function InvoerenPage() {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { setErr(j.error ?? "Fout bij opslaan."); return; }
+    const g = Number(stand);
     setMsg(`${typeStand === "START" ? "Startstand" : "Stopstand"} ${stand} opgeslagen op ${datum}.`);
-    setStand(""); setParsed(false); setHuidig(null);
-    setTimeout(() => router.push(terug), 900);
+    setHuidig(null);
+    // doorloop: datum blijft, stand loopt door als beginpunt van de volgende invoer
+    setTypeStand(typeStand === "START" ? "STOP" : "START");
+    if (typeStand === "STOP") {
+      const nd = new Date(datum); nd.setDate(nd.getDate() + 1);
+      setDatum(nd.toISOString().slice(0, 10));
+      laadRij(nd.getFullYear(), nd.getMonth() + 1, nd.getDate());
+    }
+    setStand(String(g));
   }
 
   const sluit = () => router.push(terug);
@@ -223,6 +231,12 @@ export default function InvoerenPage() {
             <p style={{ textAlign: "center", fontSize: 12.5, color: "#8a8f98", marginTop: 10 }}>
               De server controleert de stand en berekende meteen alle totalen opnieuw.
             </p>
+            {msg && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 14 }}>
+                <button onClick={sluit} style={roodBtn}>✓ Klaar — terug naar raster</button>
+                <button onClick={() => setMsg("")} style={{ ...roodBtn, background: "#fff", color: "#1a1d21", border: "2px solid #d6d9de" }}>＋ Nog een invoer</button>
+              </div>
+            )}
           </div>
         )}
 

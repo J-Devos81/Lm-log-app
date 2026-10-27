@@ -291,7 +291,7 @@ a { color: inherit; }
 .og-dagkolom::-webkit-scrollbar-track { background: rgba(255,255,255,.05); border-radius: 999px; }
 .og-dagkolom::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#b9bec7,#6d737d); border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
 .og-dagkolom .og-drow.head { position: sticky; top: 0; z-index: 2; }
-.og-drow { display: grid; grid-template-columns: 54px 104px minmax(0,1fr) minmax(0,1fr) 116px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
+.og-drow { display: grid; grid-template-columns: 54px 104px minmax(0,1fr) minmax(0,1fr) 90px 80px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
 .og-drow.head { height: 30px; margin-bottom: 8px; font-size: 14.5px; letter-spacing: 1.2px; }
 .og-drow .c { text-align: center; font-size: 15.5px; }
 .og-drow .dag { font-size: 16px; letter-spacing: .5px; }

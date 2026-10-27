@@ -107,6 +107,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           style={{ background: "transparent", border: "none", color: "inherit", textAlign: "center", width: "100%", opacity: has ? 1 : .45 }}
           onChange={e => { const v = e.target.value.replace(/\D/g, ""); quickEdit(d.day, { endKm: v === "" ? null : Number(v) }); }} />
         <div className="c og-serif">{has ? nls(d.total ?? 0) : <span style={{ opacity: .45 }}>–</span>}</div>
+        <div className="c og-serif" style={{ color: d.priveKm ? "#ff8d84" : undefined }}>{d.priveKm ? nls(d.priveKm) : <span style={{ opacity: .45 }}>–</span>}</div>
       </div>
     );
   };
@@ -133,6 +134,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="og-fox" src="/fox.png" alt="" />
+          <div style={{ position: "absolute", right: 14, top: 88, fontFamily: "Georgia, cursive", fontStyle: "italic", fontSize: 15, color: "#f3ede2", textShadow: "0 1px 3px rgba(0,0,0,.9)", zIndex: 5, pointerEvents: "none" }}>System J</div>
         </div>
         <div className="og-herosub"><b>KILOMETERSTAND 1 {MONTHS[m - 1]}:</b> &nbsp;{openStand != null ? nls(openStand) + " km" : "—"} &nbsp;·&nbsp; alle waarden worden server-side berekend.</div>
 
@@ -177,7 +179,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
             </div>
             <div className="og-tables">
               <div className="og-dagkolom">
-                <div className="og-pill og-drow head"><div className="c og-serif">D/N</div><div className="c og-serif">DAG</div><div className="c og-serif">START</div><div className="c og-serif">EIND</div><div className="c og-serif">TOTAAL</div></div>
+                <div className="og-pill og-drow head"><div className="c og-serif">D/N</div><div className="c og-serif">DAG</div><div className="c og-serif">START</div><div className="c og-serif">EIND</div><div className="c og-serif">TOTAAL</div><div className="c og-serif">PRIVÉ</div></div>
                 {dagen.map(d => <Row key={d.day} d={d} />)}
               </div>
             </div>
