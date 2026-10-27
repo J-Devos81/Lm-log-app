@@ -116,7 +116,7 @@ export default function JaarOverzichtPage() {
             <div style={{ display: "flex", gap: 10 }}>
               <input value={opening} inputMode="numeric" placeholder="Openingsstand"
                 onChange={e => setOpening(e.target.value.replace(/\D/g, ""))}
-                style={{ flex: 1, background: "#171b21", color: "#fff", border: "1px solid rgba(255,255,255,.16)", borderRadius: 9, padding: 13, fontSize: 15 }} />
+                style={{ flex: 1, background: "rgba(255,255,255,.08)", color: "#fff", border: "1px solid rgba(255,255,255,.16)", borderRadius: 9, padding: 13, fontSize: 15 }} />
               <button className="btn-main" style={{ margin: 0, width: "auto", padding: "0 26px", borderRadius: 9 }} onClick={startYear}>Jaar starten</button>
             </div>
           </div>
@@ -196,25 +196,25 @@ export default function JaarOverzichtPage() {
                 <a href={`/maand/${m.month}?y=${data?.year ?? year}`} className="m" style={{ textDecoration: "none", color: "inherit" }}>
                   {MONTHS[m.month - 1]}
                 </a>
-                <div className={"w" + (m.totalKm > 0 ? " over" : "")}>{nls(m.totalKm)}</div>
-                <div className="p">{nls(m.priveKm)}</div>
+                <div className={"w og-num" + (m.totalKm > 0 ? " over" : "")}>{nls(m.totalKm)}</div>
+                <div className="p og-num">{nls(m.priveKm)}</div>
               </div>
             ))}
           </div>
           <div className="side-total">
             <div className="pill-title">totaal werk</div>
-            <div className="pill-big red">{s ? nls(s.totalKm) : "—"}</div>
+            <div className="pill-big red og-num">{s ? nls(s.totalKm) : "—"}</div>
             <div className="pill-title">totaal privé</div>
-            <div className="pill-big">{s ? nls(s.priveKm) : "—"}</div>
+            <div className="pill-big og-num">{s ? nls(s.priveKm) : "—"}</div>
             <div className="pill-title">tot limiet</div>
-            <div className="pill-big">{s ? nls(s.kmLimit) : "—"}</div>
+            <div className="pill-big og-num">{s ? nls(s.kmLimit) : "—"}</div>
             <div className="footnote">Openingsstand op 1 januari: <b>{data ? nls(data.openingOdometer) : "—"} km</b></div>
             <div className="panel" style={compactPanel}>
               <div className="stat-card" style={{ borderRadius: 12, padding: 14 }}>
                 <div className="k">Handmatige correctie — privé-jaartotaal bijsturen</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   <input value={correctie} onChange={e => setCorrectie(e.target.value)}
-                    style={{ width: 120, background: "#171b21", border: "1px solid rgba(255,255,255,.16)", color: "#fff", borderRadius: 8, padding: 9, fontSize: 14 }} />
+                    style={{ width: 120, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.16)", color: "#fff", borderRadius: 8, padding: 9, fontSize: 14 }} />
                   <button className="btn-main" style={{ margin: 0, width: "auto", padding: "0 18px", borderRadius: 8 }} onClick={saveCorrectie}>✓ Correctie opslaan</button>
                 </div>
               </div>

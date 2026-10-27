@@ -251,7 +251,7 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: center;
 }
 .og-pill.hot { border-color: rgba(226,58,48,.60); box-shadow: inset 0 1px 0 rgba(255,255,255,.30), inset 0 -10px 20px rgba(0,0,0,.38), 0 0 16px rgba(226,58,48,.28), 0 8px 18px rgba(0,0,0,.38); }
-.og-pill.wknd { background: linear-gradient(180deg, rgba(28,30,38,.62), rgba(6,6,10,.80)); border-color: rgba(255,255,255,.14); }
+.og-pill.wknd { background: linear-gradient(180deg, rgba(10,12,16,.88), rgba(3,4,6,.94)); border-color: rgba(255,255,255,.10); }
 
 .og-titlebar { display: flex; align-items: center; gap: 22px; min-height: 82px; padding: 0 22px 0 14px; margin-top: 6px; border-radius: 20px;
   background: linear-gradient(180deg, rgba(56,60,72,.52), rgba(12,13,17,.72)); border: 1px solid rgba(255,255,255,.22);
@@ -291,6 +291,9 @@ a { color: inherit; }
 .og-dagkolom::-webkit-scrollbar-track { background: rgba(255,255,255,.05); border-radius: 999px; }
 .og-dagkolom::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#b9bec7,#6d737d); border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
 .og-dagkolom .og-drow.head { position: sticky; top: 0; z-index: 2; }
+
+/* getallen: Arial Bold, iets groter dan de serif-tekst eromheen */
+.og-num { font-family: Arial, Helvetica, sans-serif !important; font-weight: 700 !important; font-size: 17px !important; letter-spacing: .3px; font-variant-numeric: tabular-nums; }
 .og-drow { display: grid; grid-template-columns: 54px 104px minmax(0,1fr) minmax(0,1fr) 90px 80px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
 .og-drow.head { height: 30px; margin-bottom: 8px; font-size: 14.5px; letter-spacing: 1.2px; }
 .og-drow .c { text-align: center; font-size: 15.5px; }

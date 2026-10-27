@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@/lib/session";
 import {
-  buildCalendar, bridgeMultiDayTrip, dayTotal, resolveState, resolveEndDate, yearSummary, type TripRow,
+  buildCalendar, bridgeYear, dayTotal, resolveState, resolveEndDate, yearSummary, type TripRow,
 } from "@/lib/engine";
 
 type Ctx = { params: Promise<{ year: string }> };
@@ -36,23 +36,35 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     priveByDay.set(t.month, (priveByDay.get(t.month) ?? new Map()).set(t.day, t.priveKm ?? 0));
   }
 
+  // A5: brugging over het HELE jaar (ritten die een maandgrens overschrijden)
+  const allRows = yrow.trips
+    .slice()
+    .sort((a, b2) => a.month - b2.month || a.day - b2.day)
+    .map(t => ({
+      month: t.month, day: t.day, dayNight: (t.dayNight as "D" | "N") ?? "D",
+      startKm: t.startKm ?? null, endKm: t.endKm ?? null, priveKm: t.priveKm ?? 0,
+    }));
+  const bridges = bridgeYear(allRows);
+
   // maandraster laden: kalender + ritten, weekendvlag -> zwart
   const months = calendar.map(cm => {
     const rows = tripsByMonth.get(cm.month) ?? [];
-    const bridged = bridgeMultiDayTrip(year, cm.month, rows);
+    const bridgedStart = (day: number): number | null | undefined => bridges.get(cm.month)?.get(day);
     return {
       month: cm.month, name: cm.name,
       days: cm.days.map(d => {
-        const t = bridged.find(r => r.day === d.day);
+        const t = rows.find(r => r.day === d.day);
+        const bs = bridgedStart(d.day);
+        const startKm = bs !== undefined ? bs : (t?.startKm ?? null);
         return {
           day: d.day, date: d.date, weekday: d.weekday, weekend: d.weekend,
           dayNight: t?.dayNight ?? "D",
-          startKm: t?.startKm ?? null,
+          startKm,
           endKm: t?.endKm ?? null,
           endDatum: t ? resolveEndDate(year, t) : "",
-          total: t ? dayTotal(t) : null,
+          total: t ? dayTotal({ startKm, endKm: t.endKm ?? null }) : null,
           priveKm: t?.priveKm ?? 0,
-          state: t ? resolveState(t) : null,
+          state: t ? resolveState({ startKm, endKm: t.endKm ?? null }) : null,
         };
       }),
     };

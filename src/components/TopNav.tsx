@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 export const YEARS_ACCEPT: number[] = Array.from({ length: 2060 - 2024 + 1 }, (_, i) => 2024 + i);
 
 export default function TopNav(props: {
-  year: number; username?: string; role?: string; active: "Jaaroverzicht" | "Maandraster" | "Beheer" | "Instellingen";
+  year: number; username?: string; role?: string; active: "Jaaroverzicht" | "Maand overzicht" | "Beheer" | "Instellingen";
   onYear?: (y: number) => void;
 }) {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function TopNav(props: {
   const initials = name ? name.split(/\s+/).map(x => x[0]).slice(0, 2).join("").toUpperCase() : "?";
   const tabs: { label: typeof props.active; href: string }[] = [
     { label: "Jaaroverzicht", href: "/" },
-    { label: "Maandraster", href: "/maand/1" },
+    { label: "Maand overzicht", href: `/maand/${new Date().getMonth() + 1}?y=${props.year}` },
     { label: "Beheer", href: role === "ADMIN" ? "/admin" : "/", },
     { label: "Instellingen", href: "/instellingen" },
   ];
@@ -48,7 +48,7 @@ export default function TopNav(props: {
       </div>
       <nav className="tabs">
         {tabs.map(t => role === "ADMIN" || (t.label !== "Beheer") ? (
-          <a key={t.label} href={t.label === "Maandraster" ? `/maand/1` : t.href}
+          <a key={t.label} href={t.href}
             className={props.active === t.label ? "active" : ""}>{t.label}</a>
         ) : null)}
       </nav>

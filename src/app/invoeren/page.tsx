@@ -9,7 +9,7 @@ type ScanState = "idle" | "camera" | "check";
 export default function InvoerenPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("handmatig");
-  const [terug, setTerug] = useState("/");
+  const [terug, setTerug] = useState<string>(`/maand/${new Date().getMonth() + 1}?y=${new Date().getFullYear()}`);
   const [datum, setDatum] = useState(() => new Date().toISOString().slice(0, 10));
   const [tijd, setTijd] = useState("");
   const [typeStand, setTypeStand] = useState<"START" | "STOP">("START");
@@ -123,7 +123,8 @@ export default function InvoerenPage() {
         year: Number(datum.slice(0, 4)), month: Number(datum.slice(5, 7)), day: Number(datum.slice(8, 10)),
         dayNight: dagNacht,
         [typeStand === "START" ? "startKm" : "endKm"]: stand === "" ? null : Number(stand),
-        ...(prive !== "" ? { priveKm: Number(prive) } : {}),
+        // A2: privé alleen bij STOP meesturen — een START-save mag bestaande privé op de dag niet wissen
+        ...(typeStand === "STOP" && prive !== "" ? { priveKm: Number(prive) } : {}),
       }),
     });
     const j = await r.json().catch(() => ({}));
@@ -237,7 +238,7 @@ export default function InvoerenPage() {
             </p>
             {msg && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 14 }}>
-                <button onClick={sluit} style={roodBtn}>✓ Klaar — terug naar raster</button>
+                <button onClick={sluit} style={roodBtn}>✓ Klaar — terug naar maand overzicht</button>
                 <button onClick={() => setMsg("")} style={{ ...roodBtn, background: "#fff", color: "#1a1d21", border: "2px solid #d6d9de" }}>＋ Nog een invoer</button>
               </div>
             )}

@@ -118,6 +118,32 @@ export interface MonthSummary {
   priveKm: number;
 }
 
+/**
+ * 6.3b Carry-forward over het HELE jaar: een beginstand op bijv. 31/1 met een
+ * eindstand op 3/2 rekent de span af op de sluitdag, ook over maandgrenzen heen.
+ * rows moeten chronologisch gesorteerd zijn (maand, dag).
+ */
+export function bridgeYear(rows: TripRow[]): Map<number, Map<number, number | null>> {
+  // resultaat: per (maand, dag) de effectieve startstand na brugging
+  const out = new Map<number, Map<number, number | null>>();
+  let carriedStart: number | null = null;
+  for (const r of rows) {
+    const st = resolveState(r);
+    if (st === 2) {
+      carriedStart = r.startKm;
+    } else if (st === 3) {
+      if (carriedStart !== null && r.startKm === null) {
+        // sluit een open rit af op de eerste rij die een eindstand geeft
+        const map = out.get(r.month) ?? new Map<number, number | null>();
+        map.set(r.day, carriedStart);
+        out.set(r.month, map);
+        carriedStart = null;
+      }
+    }
+  }
+  return out;
+}
+
 export interface YearSummary {
   totalKm: number;
   priveKm: number;        // incl. correctieveld (AW9)

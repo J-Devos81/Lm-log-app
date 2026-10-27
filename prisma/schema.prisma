@@ -69,6 +69,7 @@ model Trip {
   startKm   Int?
   endKm     Int?
   priveKm   Float  @default(0)
+  priveAuto Boolean @default(false) // true = automatisch berekend verschil (mag overschreven worden); false = handmatig ingegeven
   year      Year   @relation(fields: [yearId], references: [id], onDelete: Cascade)
 
   @@unique([yearId, month, day])
