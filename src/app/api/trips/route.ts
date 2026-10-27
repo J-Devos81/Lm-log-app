@@ -56,6 +56,32 @@ export async function PUT(req: NextRequest) {
     where: { yearId_month_day: { yearId: yrow.id, month, day } },
     data: { dayNight, startKm, endKm, priveKm: priveKm ?? 0 },
   });
-  return NextResponse.json({ ok: true, trip: updated });
+
+  // privé-regel: bij een START-invoer is het verschil met de laatste eindstand privé-km,
+  // geboekt op de dag van die laatste eindstand. (45000 eind op 1/3, start 47000 op 10/3 → 2000 privé op 1/3)
+  let priveBoeking: { month: number; day: number; priveKm: number } | null = null;
+  if (b.startKm !== undefined && startKm !== null) {
+    const prev = await prisma.trip.findFirst({
+      where: {
+        yearId: yrow.id,
+        endKm: { not: null },
+        OR: [
+          { month: month, day: { lt: day } },
+          { month: { lt: month } },
+        ],
+      },
+      orderBy: [{ month: "desc" }, { day: "desc" }],
+    });
+    if (prev && prev.endKm !== null && startKm > prev.endKm) {
+      const diff = startKm - prev.endKm;
+      const p = await prisma.trip.update({
+        where: { id: prev.id },
+        data: { priveKm: diff },
+      });
+      priveBoeking = { month: p.month, day: p.day, priveKm: p.priveKm };
+    }
+  }
+
+  return NextResponse.json({ ok: true, trip: updated, priveBoeking });
 }
 export const dynamic = "force-dynamic";

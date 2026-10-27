@@ -133,8 +133,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
             <button className="og-btn" onClick={() => window.print()}>🖨 Afdrukken</button>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="og-fox" src="/fox.png" alt="" />
-          <div style={{ position: "absolute", right: 14, top: 88, fontFamily: "Georgia, cursive", fontStyle: "italic", fontSize: 15, color: "#f3ede2", textShadow: "0 1px 3px rgba(0,0,0,.9)", zIndex: 5, pointerEvents: "none" }}>System J</div>
+          <img className="og-fox" src="/fox.png" alt="System J" />
         </div>
         <div className="og-herosub"><b>KILOMETERSTAND 1 {MONTHS[m - 1]}:</b> &nbsp;{openStand != null ? nls(openStand) + " km" : "—"} &nbsp;·&nbsp; alle waarden worden server-side berekend.</div>
 

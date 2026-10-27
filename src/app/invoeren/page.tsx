@@ -123,13 +123,17 @@ export default function InvoerenPage() {
         year: Number(datum.slice(0, 4)), month: Number(datum.slice(5, 7)), day: Number(datum.slice(8, 10)),
         dayNight: dagNacht,
         [typeStand === "START" ? "startKm" : "endKm"]: stand === "" ? null : Number(stand),
-        ...(typeStand === "STOP" && prive !== "" ? { priveKm: Number(prive) } : {}),
+        ...(prive !== "" ? { priveKm: Number(prive) } : {}),
       }),
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { setErr(j.error ?? "Fout bij opslaan."); return; }
     const g = Number(stand);
-    setMsg(`${typeStand === "START" ? "Startstand" : "Stopstand"} ${stand} opgeslagen op ${datum}.`);
+    const pb = j.priveBoeking as { month: number; day: number; priveKm: number } | null | undefined;
+    setMsg(
+      `${typeStand === "START" ? "Startstand" : "Stopstand"} ${stand} opgeslagen op ${datum}.` +
+      (pb ? ` Privé-km: ${pb.priveKm} km geboekt op ${String(pb.day).padStart(2, "0")}/${String(pb.month).padStart(2, "0")}.` : "")
+    );
     setHuidig(null);
     // doorloop: datum blijft, stand loopt door als beginpunt van de volgende invoer
     setTypeStand(typeStand === "START" ? "STOP" : "START");
