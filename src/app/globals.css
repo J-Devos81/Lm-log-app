@@ -15,7 +15,7 @@
   --ok: #46a758;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; overflow-x: hidden; }
 body {
   font-family: "Segoe UI", system-ui, Arial, sans-serif;
   background: var(--bg);
@@ -70,6 +70,10 @@ a { color: inherit; }
 }
 .logout:hover { color: #fff; border-color: var(--red); }
 
+@media (max-width: 1250px) {
+  .topnav .brand small, .topnav .jaarselect .jaar-label, .userbadge .who small { display: none; }
+  .topnav nav.tabs a { padding: 9px 10px; }
+}
 /* ---------- pagina ---------- */
 .page { position: relative; max-width: 1520px; margin: 0 auto; padding: 14px 20px 90px; }
 .back-link { font-size: 13px; color: var(--muted); text-decoration: none; display: inline-block; margin-bottom: 8px; }
@@ -134,9 +138,9 @@ a { color: inherit; }
 }
 .fill-fab:hover { filter: brightness(1.1); }
 
-.table-shell { display: grid; grid-template-columns: 1fr 40% 300px; gap: 18px; align-items: start; }
-@media (max-width: 1100px) { .table-shell { grid-template-columns: 1fr; } }
-.days-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; }
+.table-shell { display: grid; grid-template-columns: minmax(0, 1fr) 40% 300px; gap: 18px; align-items: start; }
+@media (max-width: 1100px) { .table-shell { grid-template-columns: minmax(0, 1fr); } }
+.days-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; }
 @media (max-width: 1100px) { .days-grid { grid-template-columns: 1fr; } }
 
 .day-row {
@@ -234,8 +238,8 @@ a { color: inherit; }
 .footnote b { color: var(--text); }
 
 /* ---------- jaaroverzicht tabel ---------- */
-.yr-tabel { display: grid; grid-template-columns: 1fr 620px; gap: 22px; align-items: start; }
-@media (max-width: 1200px) { .yr-tabel { grid-template-columns: 1fr; } }
+.yr-tabel { display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 22px; align-items: start; }
+@media (max-width: 1200px) { .yr-tabel { grid-template-columns: minmax(0, 1fr); } }
 .yr-row {
   display: grid; grid-template-columns: 220px 1fr 1fr; gap: 10px; align-items: center; margin: 6px 0;
 }
