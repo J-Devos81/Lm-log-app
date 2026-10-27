@@ -35,7 +35,9 @@ export async function PUT(req: NextRequest) {
   const endKm = b.endKm === undefined ? trip.endKm : endKmIn;
   const priveKm = b.priveKm === undefined ? trip.priveKm : priveKmIn;
   const priveAuto = b.priveKm === undefined ? trip.priveAuto : false; // handmatig ingegeven privé
-  const dayNight = b.dayNight === undefined ? trip.dayNight : (dayNightIn ?? "D");
+  // dag volledig gewist → D/N terug naar D
+  const dagLeeg = startKm === null && endKm === null;
+  const dayNight = dagLeeg && b.dayNight === undefined ? "D" : (b.dayNight === undefined ? trip.dayNight : (dayNightIn ?? "D"));
 
   // 7.4 invoervalidaties
   // A5: eindstand zonder eigen start is TOEGESTAAN als er een open start vóór deze dag
@@ -102,7 +104,8 @@ export async function PUT(req: NextRequest) {
     data: { dayNight, startKm, endKm, priveKm: priveKm ?? 0, priveAuto },
   });
 
-  // A3: privé herberekenen bij elke mutatie van de keten
+  // A3: privé herberekenen bij elke mutatie van de keten — het automatisme is
+  // altijd autoritatief (ook over geïmporteerde waarden heen).
   let priveBoeking: { month: number; day: number; priveKm: number } | null = null;
 
   // boek de privé van de eindstand vóór een start opnieuw bij een startwijziging
@@ -121,14 +124,34 @@ export async function PUT(req: NextRequest) {
     if (!p || p.endKm === null) return null;
     const diff = startTrip.startKm - p.endKm;
     const waarde = diff > 0 ? diff : 0;
-    // handmatige privé (niet-auto, waarde > 0) wordt niet overschreven
-    if (!p.priveAuto && p.priveKm !== 0) return null;
     const u = await prisma.trip.update({ where: { id: p.id }, data: { priveKm: waarde, priveAuto: true } });
     return { month: u.month, day: u.day, priveKm: u.priveKm };
   };
 
   if (b.startKm !== undefined) {
     priveBoeking = await boekPriveVoorStart({ month, day, startKm });
+    // start gewist → geen gat meer vóór deze start: privé op de vorige einddag naar 0
+    // (tenzij een latere start die eindstand nog boekt)
+    if (startKm === null) {
+      const p = await prisma.trip.findFirst({
+        where: {
+          yearId: yrow.id, endKm: { not: null },
+          OR: [{ month: month, day: { lt: day } }, { month: { lt: month } }],
+        },
+        orderBy: [{ month: "desc" }, { day: "desc" }],
+      });
+      if (p) {
+        const volgende = await prisma.trip.findFirst({
+          where: {
+            yearId: yrow.id, startKm: { not: null },
+            OR: [{ month: month, day: { gt: day } }, { month: { gt: month } }],
+          },
+          orderBy: [{ month: "asc" }, { day: "asc" }],
+        });
+        if (!volgende?.startKm)
+          await prisma.trip.update({ where: { id: p.id }, data: { priveKm: 0, priveAuto: true } });
+      }
+    }
   }
   // bij een eindstandswijziging kan de boekingen van de VOLGENDE start wijzigen
   if (b.endKm !== undefined) {

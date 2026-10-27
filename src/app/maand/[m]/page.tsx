@@ -136,7 +136,6 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
         <NumCell value={d.startKm} onOpslaan={v => quickEdit(d.day, { startKm: v })} disabled={!!data?.closed} />
         <div style={{ position: "relative", minWidth: 0 }}>
           <NumCell value={d.endKm} onOpslaan={v => quickEdit(d.day, { endKm: v })} disabled={!!data?.closed} />
-          {d.dayNight === "N" && <span style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", fontSize: 9.5, fontWeight: 800, color: "#35c5ff", pointerEvents: "none" }}>+1</span>}
         </div>
         <div className="c og-num">{has ? nls(d.total ?? 0) : <span style={{ opacity: .45 }}>–</span>}</div>
         <div className="c og-num" style={{ color: d.priveKm ? "#ff8d84" : undefined }}>{d.priveKm ? nls(d.priveKm) : <span style={{ opacity: .45 }}>–</span>}</div>
