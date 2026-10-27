@@ -294,8 +294,8 @@ a { color: inherit; }
 
 /* getallen: Arial Bold, iets groter dan de serif-tekst eromheen */
 .og-num { font-family: Arial, Helvetica, sans-serif !important; font-weight: 700 !important; font-size: 17px !important; letter-spacing: .3px; font-variant-numeric: tabular-nums; }
-.og-drow { display: grid; grid-template-columns: 54px 104px minmax(0,1fr) minmax(0,1fr) 90px 80px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
-.og-drow.head { height: 30px; margin-bottom: 8px; font-size: 14.5px; letter-spacing: 1.2px; }
+.og-drow { display: grid; grid-template-columns: 74px 104px minmax(0,1fr) minmax(0,1fr) 90px 80px; gap: 8px; align-items: center; padding: 0 16px; height: 33px; margin-bottom: 6px; text-decoration: none; }
+.og-drow.head { height: 44px; margin-bottom: 12px; font-size: 14.5px; letter-spacing: 1.2px; background: linear-gradient(180deg, rgba(52,56,66,.55), rgba(12,13,18,.70)); border: 1px solid rgba(255,255,255,.18); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 6px 14px rgba(0,0,0,.35); }
 .og-drow .c { text-align: center; font-size: 15.5px; }
 .og-drow .dag { font-size: 16px; letter-spacing: .5px; }
 .og-drow .dag .wd { font-size: 11px; color: #aeb4bd; margin-left: 5px; letter-spacing: 1px; }

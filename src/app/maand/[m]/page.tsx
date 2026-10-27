@@ -138,7 +138,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           <NumCell value={d.endKm} onOpslaan={v => quickEdit(d.day, { endKm: v })} disabled={!!data?.closed} />
         </div>
         <div className="c og-num">{has ? nls(d.total ?? 0) : <span style={{ opacity: .45 }}>–</span>}</div>
-        <div className="c og-num" style={{ color: d.priveKm ? "#ff8d84" : undefined }}>{d.priveKm ? nls(d.priveKm) : <span style={{ opacity: .45 }}>–</span>}</div>
+        <div className="c og-num">{d.priveKm ? nls(d.priveKm) : <span style={{ opacity: .45 }}>–</span>}</div>
       </div>
     );
   };
@@ -187,7 +187,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
                 <div className="s">{gereg} dagen geregistreerd</div>
               </div>
               <div className="og-pill og-stat">
-                <div className="k">☾ PRIVÉ (INCL. CORRECTIE)</div>
+                <div className="k">☾ PRIVÉ</div>
                 <div className="v og-num">{nls(stat2)}<small>km</small></div>
                 <div className="s">automatisch + handmatig geboekt</div>
               </div>
@@ -206,7 +206,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
               </span>
               <span className="og-pill og-fchip on">Weekend</span>
               <span className="og-pill og-fchip">D→dag</span>
-              <span className="og-pill og-fchip">N→nacht (+1)</span>
+              <span className="og-pill og-fchip">N→nacht</span>
               <span className="sp" />
               <button className="og-mbtn" onClick={() => router.push(`/invoeren?terug=${encodeURIComponent(`/maand/${m}?y=${year}`)}`)}>✎ Ik invullen</button>
             </div>
