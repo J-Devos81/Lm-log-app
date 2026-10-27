@@ -166,7 +166,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           <span className="og-pill og-fchip">D→dag</span>
           <span className="og-pill og-fchip">N→nacht (+1)</span>
           <span className="sp" />
-          <button className="og-mbtn" onClick={() => router.push("/invoeren")}>✎ Ik invullen</button>
+          <button className="og-mbtn" onClick={() => router.push(`/invoeren?terug=${encodeURIComponent(`/maand/${m}?y=${year}`)}`)}>✎ Ik invullen</button>
         </div>
 
         <div className="og-main">
@@ -184,7 +184,6 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           </section>
 
           <aside className="og-aside">
-            <div className="og-pill og-mlbl og-serif">Maand totaal</div>
             <div className="og-tot2">
               <div className="stack">
                 <div className="og-pill lbl og-serif">WERK</div>

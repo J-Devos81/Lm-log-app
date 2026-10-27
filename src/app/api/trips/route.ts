@@ -21,10 +21,16 @@ export async function PUT(req: NextRequest) {
   const trip = await prisma.trip.findUnique({ where: { yearId_month_day: { yearId: yrow.id, month, day } } });
   if (!trip) return NextResponse.json({ error: "Dag bestaat niet (kalender)." }, { status: 404 });
 
-  const startKm = b.startKm === undefined || b.startKm === null || b.startKm === "" ? null : Number(b.startKm);
-  const endKm = b.endKm === undefined || b.endKm === null || b.endKm === "" ? null : Number(b.endKm);
-  const priveKm = b.priveKm === undefined || b.priveKm === null || b.priveKm === "" ? (trip.priveKm ?? 0) : Number(b.priveKm);
-  const dayNight = b.dayNight === "N" ? "N" : "D";
+  const startKmIn = b.startKm === undefined || b.startKm === null || b.startKm === "" ? null : Number(b.startKm);
+  const endKmIn = b.endKm === undefined || b.endKm === null || b.endKm === "" ? null : Number(b.endKm);
+  const priveKmIn = b.priveKm === undefined || b.priveKm === null || b.priveKm === "" ? null : Number(b.priveKm);
+  const dayNightIn = b.dayNight === undefined ? null : (b.dayNight === "N" ? "N" : "D");
+
+  // niet-meegestuurde velden behouden hun bestaande waarde (geen null-overschrijving)
+  const startKm = b.startKm === undefined ? trip.startKm : startKmIn;
+  const endKm = b.endKm === undefined ? trip.endKm : endKmIn;
+  const priveKm = b.priveKm === undefined ? (trip.priveKm ?? 0) : priveKmIn;
+  const dayNight = b.dayNight === undefined ? trip.dayNight : (dayNightIn ?? "D");
 
   // 7.4 invoervalidaties
   try {

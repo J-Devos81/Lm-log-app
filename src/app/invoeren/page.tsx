@@ -22,6 +22,12 @@ export default function InvoerenPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [curYear, setCurYear] = useState<number>(new Date().getFullYear());
+  const [terug, setTerug] = useState<string>("/");
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("terug");
+    if (q && q.startsWith("/maand/")) setTerug(q);
+  }, []);
 
   useEffect(() => {
     // inschatten schaal: mobiel vult de viewport met de invoercard
@@ -70,6 +76,19 @@ export default function InvoerenPage() {
     }
   }
 
+  async function scanFile(file: File) {
+    setErr("OCR draait even…");
+    try {
+      const bmp = await createImageBitmap(file);
+      const c = document.createElement("canvas");
+      c.width = bmp.width; c.height = bmp.height;
+      c.getContext("2d")?.drawImage(bmp, 0, 0);
+      await ocrCanvas(c);
+    } catch (e: any) {
+      setErr("Foto kon niet gelezen worden: " + (e?.message ?? e));
+    }
+  }
+
   async function shootAndScan() {
     setErr("OCR draait even…");
     const video = videoRef.current;
@@ -79,6 +98,10 @@ export default function InvoerenPage() {
     c.height = video.videoHeight || 720;
     c.getContext("2d")?.drawImage(video, 0, 0, c.width, c.height);
     await stopCamera();
+    await ocrCanvas(c);
+  }
+
+  async function ocrCanvas(c: HTMLCanvasElement) {
     try {
       const T = (await import("tesseract.js")).default;
       const { data } = await T.recognize(c.toDataURL("image/png"), "eng", {});
@@ -140,7 +163,7 @@ export default function InvoerenPage() {
         <div><h1>Km invoeren · {curYear}</h1></div>
         <span className="spacer" />
         <nav className="tabs"><a className="active" href="/">Maandraster</a></nav>
-        <button className="btn-chip" onClick={() => router.push("/")}>← Raster</button>
+        <button className="btn-chip" onClick={() => router.push(terug)}>← Raster</button>
       </div>
 
       {scanState === "idle" && (
@@ -155,8 +178,13 @@ export default function InvoerenPage() {
           {traject === "scan" && (
             <div style={{ ...inputCard }}>
               <h2 style={{ color: "var(--brown)" }}>Traject 1: foto van de teller</h2>
-              <p style={{ fontSize: 14, opacity: .8 }}>Maak een foto waarop de datum, de tijd en de kilometerstand zichtbaar zijn.</p>
+              <p style={{ fontSize: 14, opacity: .8 }}>Maak een foto waarop de datum, de tijd en de kilometerstand zichtbaar zijn — of kies een bestaande foto.</p>
               <button onClick={startScan} className="britannic" style={btn("var(--cyan)")}>Camera starten</button>
+              <label className="britannic" style={{ ...btn("#5a5f68"), color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                📁 Bestand kiezen
+                <input type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={e => { const file = e.target.files?.[0]; if (file) scanFile(file); }} />
+              </label>
               <button onClick={() => setTraject(null)} style={backBtn}>Terug</button>
             </div>
           )}

@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [resetCode, setResetCode] = useState("");
   const [msg, setMsg] = useState<{ t: "ok" | "err"; text: string } | null>(null);
+  const [showPw, setShowPw] = useState(false);
 
   async function call(url: string, body: Record<string, unknown>, method = "POST") {
     const r = await fetch(url, {
@@ -117,8 +118,14 @@ export default function LoginPage() {
           {tab === "login" && step === "form" && (
             <>
               <label className="field-label">Wachtwoord</label>
-              <input type="password" placeholder="Je wachtwoord" value={password}
-                onChange={e => setPassword(e.target.value)} />
+              <div style={{ position: "relative" }}>
+                <input type={showPw ? "text" : "password"} placeholder="Je wachtwoord" value={password}
+                  onChange={e => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShowPw(v => !v)} aria-label="Toon wachtwoord"
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 17, color: "var(--muted)" }}>
+                  {showPw ? "🙈" : "👁"}
+                </button>
+              </div>
             </>
           )}
           {tab === "login" && step === "resetCode" && (
@@ -131,8 +138,14 @@ export default function LoginPage() {
           {tab === "login" && step === "newPassword" && (
             <>
               <label className="field-label">Nieuw wachtwoord (min. 8 tekens)</label>
-              <input type="password" value={password}
-                onChange={e => setPassword(e.target.value)} />
+              <div style={{ position: "relative" }}>
+                <input type={showPw ? "text" : "password"} value={password}
+                  onChange={e => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShowPw(v => !v)} aria-label="Toon wachtwoord"
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 17, color: "var(--muted)" }}>
+                  {showPw ? "🙈" : "👁"}
+                </button>
+              </div>
             </>
           )}
           <button className="btn-main" type="submit">
