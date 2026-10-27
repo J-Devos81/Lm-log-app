@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: km-log-app
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npx prisma generate && npx prisma db push && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: "20.19.4"
+      - key: DATABASE_URL
+        value: "file:/var/data/kmlog.db"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_RECOVERY_CODE
+        value: "Km-Admin-pass/01"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"

@@ -1,0 +1,157 @@
+/* Km-Log App — visuele identiteit uit de Excel-werkmap */
+:root {
+  --charcoal: #3a3a3a;
+  --brown: #663300;
+  --cyan: #00b0f0;
+  --cell-border: #b8b8b8;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #101010;
+  color: #111;
+}
+
+/* Britannic Bold cursief nabootsing — stevige serif-look, vet cursief */
+.britannic, .britannic * {
+  font-family: "Britannic Bold", " Cambria", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.body-odometer { background: url("/odometer.jpg") center/cover fixed no-repeat; }
+.body-spoorweg { background: url("/spoorweg.jpg") center/cover fixed no-repeat; }
+
+.topbar {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--charcoal); color: #fff;
+  padding: 8px 14px; position: sticky; top: 0; z-index: 50;
+}
+.topbar img.logo { height: 34px; }
+.topbar img.fox { height: 34px; }
+.topbar h1 { font-size: 18px; margin: 0 8px 0 0; letter-spacing: 1px; }
+.topbar .spacer { flex: 1; }
+.topbar select, .topbar button {
+  font: inherit; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;
+}
+.topbar select { background: var(--cyan); color: #000; font-weight: 700; font-style: italic; }
+.topbar button { background: var(--brown); color: #fff; font-weight: 700; }
+
+main.page { max-width: 1080px; margin: 0 auto; padding: 16px; }
+
+/* ----- Maandraster ----- */
+.month-block { margin-bottom: 28px; background: rgba(255,255,255,.96); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.45); }
+.month-head {
+  background: var(--brown); color: #fff; padding: 8px 12px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.month-head h2 { margin: 0; font-size: 17px; letter-spacing: 1px; }
+.month-head .open-stand { color: #fff; font-size: 13px; }
+
+table.raster { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.raster th, table.raster td {
+  border: 1px solid var(--cell-border); padding: 4px 6px; text-align: center; white-space: nowrap;
+}
+table.raster thead th {
+  background: var(--charcoal); color: #fff; font-weight: 700;
+}
+tr.weekend {
+  background: #000 !important; color: #fff !important;
+}
+tr.weekend input, tr.weekend select { background: #000; color: #fff; }
+table.raster input, table.raster select {
+  width: 100%; min-width: 64px; border: 1px solid transparent; background: transparent; text-align: center;
+  font: inherit; outline: none;
+}
+table.raster input:focus { border-color: var(--cyan); background: #eef9ff; }
+td.calc { background: #f4f4f4; font-weight: 700; }
+
+.month-total th, .month-total td { background: var(--charcoal); color: #fff; font-weight: 700; }
+
+/* ----- Jaaroverzicht ----- */
+.year-summary {
+  background: rgba(255,255,255,.96); border-radius: 10px; margin-top: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.45); overflow: hidden;
+}
+.year-summary h3 {
+  background: var(--cyan); color: #000; font-style: italic; margin: 0; padding: 10px 14px;
+  font-weight: 800; letter-spacing: 1px;
+}
+.year-summary table { width: 100%; border-collapse: collapse; }
+.year-summary td, .year-summary th { padding: 8px 14px; border-bottom: 1px solid #ddd; text-align: left; }
+.year-summary .label { font-weight: 700; width: 45%; }
+.status-ok { color: #0a7d0a; font-weight: 700; }
+.status-over { color: #b00020; font-weight: 700; }
+
+/* ----- Kaarten (mobiel <768px) ----- */
+.day-card {
+  border: 1px solid var(--cell-border); margin: 8px; padding: 8px 10px; background: #fff; border-radius: 6px;
+}
+.day-card.weekend { background: #000; color: #fff; }
+.day-card .row { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin: 2px 0; }
+.day-card label { font-weight: 700; font-size: 12px; }
+.day-card input, .day-card select { flex: 1; min-width: 0; border: 1px solid #ddd; padding: 6px; border-radius: 4px; }
+
+.mobile-btn-fab {
+  position: fixed; right: 16px; bottom: 20px; z-index: 60;
+  background: var(--cyan); color: #000; font-weight: 800; font-style: italic;
+  border: none; border-radius: 999px; padding: 16px 22px; font-size: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.5); cursor: pointer;
+}
+
+/* ----- Login / admin / formulieren ----- */
+.auth-card {
+  max-width: 420px; margin: 8vh auto; background: rgba(255,255,255,.97); border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.6); overflow: hidden;
+}
+.auth-card .brand { background: var(--charcoal); color: #fff; display: flex; align-items: center; gap: 10px; padding: 14px; }
+.auth-card .brand h1 { margin: 0; font-size: 22px; letter-spacing: 2px; }
+.auth-tabs { display: flex; }
+.auth-tabs button {
+  flex: 1; padding: 12px; border: none; background: #e8e8e8; font-weight: 700; cursor: pointer;
+}
+.auth-tabs button.active { background: var(--brown); color: #fff; }
+.auth-card form { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.auth-card input {
+  padding: 10px; border: 1px solid #bbb; border-radius: 6px; font-size: 15px; width: 100%;
+}
+.auth-card button[type="submit"] {
+  padding: 12px; width: 100%; border: none; border-radius: 6px; background: var(--cyan);
+  color: #000; font-weight: 800; cursor: pointer; font-size: 15px;
+}
+.msg { padding: 10px 18px; font-size: 14px; }
+.msg.ok { background: #e8fce8; color: #0a7d0a; }
+.msg.err { background: #fdeaea; color: #b00020; }
+
+.panel {
+  background: rgba(255,255,255,.97); border-radius: 10px; padding: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.45); margin-bottom: 18px;
+}
+.panel h2 { margin-top: 0; font-size: 17px; color: var(--brown); }
+.req-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 8px 0;
+  flex-wrap: wrap;
+}
+.req-row .who { font-weight: 700; }
+.req-row button { padding: 8px 14px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; }
+.req-row .yes { background: #0a7d0a; color: #fff; }
+.req-row .no { background: #b00020; color: #fff; }
+.code-display {
+  background: #000; color: #0f0; font-family: monospace; font-size: 20px; padding: 10px 16px;
+  border-radius: 8px; letter-spacing: 6px; margin: 10px 0;
+}
+
+.secret-panel { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.secret-panel input.dlg { padding: 2px 4px; font-size: 13px; }
+.camera-video {
+  width: 100%; max-width: 420px; border-radius: 10px; background: #000; display: block; margin: 0 auto;
+}
+.scan-result { text-align: center; }
+.big-number { font-size: 34px; font-weight: 800; font-family: monospace; }
+
+@media (max-width: 767px) {
+  main.page { padding: 0 0 90px 0; }
+  th, td { font-size: 11px; }
+}

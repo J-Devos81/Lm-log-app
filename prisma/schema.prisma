@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int   @id @default(autoincrement())
+  username      String @unique
+  passwordHash  String
+  role          String @default("USER") // ADMIN | USER
+  status        String @default("PENDING") // PENDING | ACTIVE | REJECTED
+  createdAt     DateTime @default(now())
+  settings      UserSettings?
+  years         Year[]
+  resetRequests PasswordResetRequest[]
+}
+
+model UserSettings {
+  userId        Int    @id
+  kmLimit       Int    @default(14000)
+  euroPerKm     Float  @default(0.175)
+  priveCorrectie Float @default(0)
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RegistrationRequest {
+  id        Int      @id @default(autoincrement())
+  username  String
+  passwordHash String
+  status    String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt DateTime @default(now())
+  decidedAt DateTime?
+}
+
+model PasswordResetRequest {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  codeHash  String?
+  status    String    @default("PENDING") // PENDING | APPROVED | USED
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model Year {
+  id              Int    @id @default(autoincrement())
+  userId          Int
+  year            Int
+  openingOdometer Int
+  closingOdometer Int?
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trips           Trip[]
+
+  @@unique([userId, year])
+}
+
+model Trip {
+  id        Int    @id @default(autoincrement())
+  yearId    Int
+  month     Int
+  day       Int
+  dayNight  String @default("D") // D | N
+  startKm   Int?
+  endKm     Int?
+  priveKm   Float  @default(0)
+  year      Year   @relation(fields: [yearId], references: [id], onDelete: Cascade)
+
+  @@unique([yearId, month, day])
+}
