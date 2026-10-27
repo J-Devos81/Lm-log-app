@@ -6,6 +6,10 @@ services:
     region: frankfurt
     buildCommand: npm ci && npx prisma generate && npx prisma db push && npm run build
     startCommand: npm run start
+    disk:
+      name: kmlog-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: "20.19.4"
