@@ -134,12 +134,13 @@ export default function InvoerenPage() {
 
   return (
     <div className="body-spoorweg" style={{ minHeight: "100vh", padding: 14 }}>
-      <div className="topbar" style={{ borderRadius: 8 }}>
+      <div className="topnav">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="logo" src="/logo.png" alt="" style={{ background: "#fff", borderRadius: 4 }} />
-        <h1 className="britannic">Km invoeren – {curYear}</h1>
+        <img className="logo" src="/logo.png" alt="TUC RAIL" style={{ background: "#fff", borderRadius: 6, padding: 3 }} />
+        <div><h1>Km invoeren · {curYear}</h1></div>
         <span className="spacer" />
-        <button onClick={() => router.push("/")}>Raster</button>
+        <nav className="tabs"><a className="active" href="/">Maandraster</a></nav>
+        <button className="btn-chip" onClick={() => router.push("/")}>← Raster</button>
       </div>
 
       {scanState === "idle" && (
@@ -148,7 +149,7 @@ export default function InvoerenPage() {
             <>
               <button onClick={() => setTraject("scan")} style={btn("#00b0f0")}>1 — Teller-foto scannen</button>
               <button onClick={() => setTraject("handmatig")} style={{ ...btn("#663300"), color: "#fff" }}>2 — Handmatig (kalender)</button>
-              {msg && <div className="panel message-ok" style={{ marginTop: 14 }}><b>{msg}</b></div>}
+              {msg && <div className="msg-banner ok" style={{ marginTop: 14 }}><b>{msg}</b></div>}
             </>
           )}
           {traject === "scan" && (
@@ -239,3 +240,4 @@ const rowStyle: React.CSSProperties = {
   display: "flex", alignItems: "center", gap: 10, margin: "10px 0",
   fontWeight: 700,
 };
+

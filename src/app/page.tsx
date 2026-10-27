@@ -1,304 +1,243 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import TopNav from "@/components/TopNav";
 
-const YEARS = Array.from({ length: 2060 - 2024 + 1 }, (_, i) => 2024 + i);
+const MONTHS = ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"];
 
-interface DayRow {
-  day: number; date: string; weekday: string; weekend: boolean;
-  dayNight: "D" | "N"; startKm: number | null; endKm: number | null;
-  endDatum?: string;
-  total: number | null; priveKm: number; state: number | null;
-}
-interface MonthBlock { month: number; name: string; days: DayRow[]; }
+interface MonthSum { month: number; name: string; totalKm: number; priveKm: number }
 interface Summary {
   totalKm: number; priveKm: number; kmLimit: number; euroPerKm: number;
   verschil: number; status: "TOT LIMIET" | "OVER LIMIET"; resterend: number;
-  teBetalen: number; teBetalenLabel: string;
+  teBetalen: number; teBetalenLabel: string; months: MonthSum[];
 }
 interface Overview {
   year: number; openingOdometer: number; closingOdometer: number | null; closed: boolean;
-  months: MonthBlock[]; summary: Summary; role: string; lastEndOfDecember: number | null;
+  months: { month: number; days: unknown[] }[]; summary: Summary; role: string;
+  lastEndOfDecember: number | null;
 }
 
-type ME = React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
+const nls = (n: number) => n.toLocaleString("nl-BE");
 
-export default function HomePage() {
+export default function JaarOverzichtPage() {
   const router = useRouter();
   const [year, setYear] = useState<number>(() => new Date().getFullYear());
+  const [queryYear, setQueryYear] = useState<number | null>(null);
   const [data, setData] = useState<Overview | null>(null);
-  const [role, setRole] = useState<string>("");
-  const [openPanel, setOpenPanel] = useState<false | true>(false);
-  const [newYear, setNewYear] = useState<number | null>(null);
+  const [notStarted, setNotStarted] = useState(false);
+  const [correctie, setCorrectie] = useState("0");
   const [opening, setOpening] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  const [delOpen, setDelOpen] = useState(false);
-  const [delConfirm, setDelConfirm] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [role, setRole] = useState("");
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("y");
+      if (q && Number(q) >= 2024 && Number(q) <= 2060) { setQueryYear(Number(q)); setYear(Number(q)); }
+    }
+  }, []);
 
   const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      const me = await fetch("/api/settings", { cache: "no-store" });
-      if (me.status === 401) { router.push("/login"); return; }
-      const mj = await me.json();
-      setRole(mj.role ?? "");
-      const yr = newYear ?? new Date().getFullYear();
-      const r = await fetch(`/api/year/${yr === year ? year : yr}`, { cache: "no-store" });
-      if (r.ok) setData(await r.json());
-      else setData(null);
-    } finally {
-      setBusy(false);
-    }
-  }, [router, year, newYear]);
+    const me = await fetch("/api/settings", { cache: "no-store" });
+    if (me.status === 401) { router.push("/login"); return; }
+    const mj = await me.json();
+    setRole(mj.role ?? ""); setUsername(mj.username ?? ""); setCorrectie(String(mj.priveCorrectie ?? 0));
+    const r = await fetch(`/api/year/${year}`, { cache: "no-store" });
+    if (r.ok) { setData(await r.json()); setNotStarted(false); }
+    else { setData(null); setNotStarted(true); }
+  }, [router, year]);
 
   useEffect(() => { load(); }, [load]);
 
-  async function save(month: number, day: number, patch: Partial<DayRow>) {
-    if (!data) return;
-    const r = await fetch("/api/trips", {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ year, month, day, ...patch }),
-    });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) { setMsg(j.error ?? "Fout bij opslaan."); setTimeout(() => setMsg(null), 4000); }
-    await load();
-  }
-
   async function startYear() {
-    if (!newYear || opening === "") return;
-    const r = await fetch(`/api/year/${newYear}`, {
+    const r = await fetch(`/api/year/${year}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ openingOdometer: Number(opening) }),
+      body: JSON.stringify({ openingOdometer: Number(opening.replace(/\./g, "")) }),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) { setMsg(j.error ?? "Fout."); setTimeout(() => setMsg(null), 4000); return; }
-    setYear(newYear); setNewYear(null); await load();
+    setMsg(r.ok ? `Jaar ${year} gestart.` : (j.error ?? "Fout."));
+    if (r.ok) { await load(); TopNavJump(year); }
+  }
+  function TopNavJump(y: number) { setYear(y); window.history.replaceState(null, "", `/?y=${y}`); }
+
+  async function saveCorrectie() {
+    const r = await fetch("/api/settings", {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priveCorrectie: Number(correctie.replace(",", ".")) }),
+    });
+    const j = await r.json().catch(() => ({}));
+    setMsg(r.ok ? "Correctie opgeslagen." : (j.error ?? "Fout."));
+    await load();
   }
 
   async function closeYear() {
-    const closing = prompt(`Jaar ${data?.year} afsluiten: vul de sluitstand`, String(data?.lastEndOfDecember ?? ""));
+    const closing = prompt(`Jaar afsluiten — sluitstand`, String(data?.lastEndOfDecember ?? ""));
     if (closing === null) return;
     const r = await fetch(`/api/year/${year}`, {
       method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ closingOdometer: Number(closing) }),
+      body: JSON.stringify({ closingOdometer: Number(closing.replace(/\./g, "")) }),
     });
     const j = await r.json().catch(() => ({}));
-    setMsg(r.ok ? (j.message ?? "Jaar gesloten.") : (j.error ?? "Fout."));
+    setMsg(r.ok ? (j.message ?? "Jaar afgesloten.") : (j.error ?? "Fout."));
     await load();
   }
 
-  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); router.push("/login"); }
-
-  async function deleteAccount() {
-    const r = await fetch("/api/account", {
-      method: "DELETE", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ confirm: delConfirm }),
-    });
-    if (r.ok) router.push("/login");
-    else setMsg("Bevestiging onjuist.");
+  function exportCsv() {
+    if (!data) return;
+    const rows = [["Maand", "Werk (km)", "Privé (km)"]].concat(
+      data.summary.months.map(m => [m.name, String(m.totalKm), String(m.priveKm)]),
+      [["TOTAAL", String(data.summary.totalKm), String(data.summary.priveKm)]]
+    );
+    const csv = rows.map(r => r.join(";")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `Km-Log_${data.year}.csv`;
+    a.click();
   }
 
-  const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, [data]);
+  const s = data?.summary;
+  const pct = s && s.kmLimit > 0 ? Math.min(100, Math.round(s.priveKm / s.kmLimit * 100)) : 0;
 
-  if (!data) {
+  if (notStarted) {
     return (
-      <div className="body-odometer" style={{ minHeight: "100vh" }}>
-        <TopBar year={year} role={role} onYear={y => { setYear(y); setNewYear(y); }} onLogout={logout} onDel={setDelOpen} />
+      <div className="bg-odometer">
+        <div className="bg-scrim" />
+        <TopNav year={year} username={username} role={role} active="Jaaroverzicht" onYear={y => setYear(y)} />
         <main className="page">
-          {msg && <div className="panel"><b>{msg}</b></div>}
-          <div className="panel">
-            <h2 className="britannic">Jaar {year} nog niet gestart</h2>
-            <p>Vul de <b>kilometerstand op 1 januari {year}</b> (openingsstand) in om te beginnen:</p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <input className="secret-panel input" style={{ padding: 10, borderRadius: 6, border: "1px solid #bbb" }}
-                inputMode="numeric" placeholder="Openingsstand" value={opening}
-                onChange={(e: ME) => setOpening(e.target.value.replace(/\D/g, ""))} />
-              <button onClick={startYear} style={{ padding: "10px 18px", border: "none", borderRadius: 6, background: "var(--cyan)", fontWeight: 700, cursor: "pointer" }}>
-                Jaar starten
-              </button>
+          {msg && <div className="msg-banner ok"><b>{msg}</b></div>}
+          <div className="hero-card" style={{ display: "block", maxWidth: 620, margin: "80px auto" }}>
+            <div className="kicker">JAAROVERZICHT · {year}</div>
+            <h2 className="title" style={{ fontSize: 24 }}>Jaar {year} nog niet gestart</h2>
+            <p className="subline" style={{ padding: 0 }}>
+              Vul de <b>kilometerstand op 1 januari {year}</b> in om te beginnen; alle maanden worden automatisch gegenereerd.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <input value={opening} inputMode="numeric" placeholder="Openingsstand"
+                onChange={e => setOpening(e.target.value.replace(/\D/g, ""))}
+                style={{ flex: 1, background: "#171b21", color: "#fff", border: "1px solid rgba(255,255,255,.16)", borderRadius: 9, padding: 13, fontSize: 15 }} />
+              <button className="btn-main" style={{ margin: 0, width: "auto", padding: "0 26px", borderRadius: 9 }} onClick={startYear}>Jaar starten</button>
             </div>
-            {busy && <small>laden…</small>}
           </div>
         </main>
-        {delOpen && <DeleteDialog confirm={delConfirm} setConfirm={setDelConfirm} onClose={() => setDelOpen(false)} onDelete={deleteAccount} />}
       </div>
     );
   }
 
-  const s = data.summary;
   return (
-    <div className="body-spoorweg" style={{ minHeight: "100vh" }}>
-      <TopBar year={year} role={role} closed={data.closed}
-        onYear={y => { setYear(y); setNewYear(y); }} onLogout={logout} onDel={setDelOpen}
-        onCloseYear={closeYear} />
+    <div className="bg-odometer">
+      <div className="bg-scrim" />
+      <TopNav year={year} username={username} role={role} active="Jaaroverzicht" onYear={y => { setYear(y); T2(y); }} />
       <main className="page">
-        {msg && <div className="panel"><b>{msg}</b></div>}
-        {data.months.map(m => (
-          <MonthRaster key={m.month} m={m} closed={data.closed} isMobile={!!isMobile} onEdit={save} />
-        ))}
+        {msg && <div className="msg-banner ok"><b>{msg}</b></div>}
+        <div className="hero-card">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="logo-white" src="/logo.png" alt="TUC RAIL" />
+          <div>
+            <div className="kicker">JAAROVERZICHT · {username.toUpperCase()}</div>
+            <h2 className="title">OVERZICHT TR Km <span className="jrt">{data ? data.year : year}</span></h2>
+          </div>
+          <div className="actions">
+            <button className="btn-chip" onClick={exportCsv}>⭳ CSV-export</button>
+            <button className="btn-chip" onClick={() => window.print()}>🖨 Afdrukken</button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="fox" src="/fox.png" alt="System J" />
+          </div>
+        </div>
+        <p className="subline">Van openingsstand tot privélimiet. <b>Alle waarden worden server-side berekend.</b></p>
 
-        <div className="year-summary" id="jaaroverzicht">
-          <h3 className="britannic">JAAROVERZICHT {year}</h3>
-          <table>
-            <tbody>
-              <tr><td className="label">Totaal ritten (km)</td><td className="calc">{fmt(s.totalKm)}</td></tr>
-              <tr><td className="label">Privé-km (incl. correctie)</td><td className="calc">{fmt(s.priveKm)}</td></tr>
-              <tr><td className="label">Jaarlimiet</td><td className="calc">{fmt(s.kmLimit)}</td></tr>
-              <tr><td className="label">VERSCHIL (limiet – privé)</td>
-                <td className={"calc " + (s.verschil < 0 ? "status-over" : "status-ok")}>{fmt(s.verschil)}</td></tr>
-              <tr><td className="label">Status</td>
-                <td className={"calc " + (s.status === "OVER LIMIET" ? "status-over" : "status-ok")}>
-                  {s.status === "TOT LIMIET" ? `TOT LIMIET — resteert ${fmt(s.resterend)} km` : "OVER LIMIET"}</td></tr>
-              {s.status === "OVER LIMIET" && (
-                <tr><td className="label">TEBETALEN ({(s.euroPerKm).toFixed(3).replace(".", ",")} €/km)</td><td className="calc status-over">€ {s.teBetalen.toFixed(2).replace(".", ",")}</td></tr>
-              )}
-            </tbody>
-          </table>
+        {s && (
+          <div className="stat-row">
+            <div className="stat-card">
+              <div className="k">⟳ Totaal gereden</div>
+              <div className="v">{nls(s.totalKm)} <small>km</small></div>
+              <div className="d">12 maanden</div>
+            </div>
+            <div className="stat-card">
+              <div className="k">Privé (incl. correctie)</div>
+              <div className="v">{nls(s.priveKm)} <small>km</small></div>
+              <div className="d">12 maanden</div>
+            </div>
+            <div className={"stat-card" + (s.verschil < 0 ? " red" : "")}>
+              <div className="k">{s.verschil >= 0 ? "⤶ VERSCHIL · TOT LIMIET" : "⤶ VERSCHIL · OVER LIMIET"}</div>
+              <div className="v">{nls(Math.abs(s.verschil))} <small>km</small></div>
+              <div className="d">{s.verschil >= 0 ? "nog beschikbaar" : "overschrijding"}</div>
+            </div>
+            <div className={"stat-card" + (s.verschil < 0 ? " red" : "")}>
+              <div className="k">$ TE BETALEN</div>
+              <div className="v">€ {s.teBetalen.toFixed(2).replace(".", ",")}</div>
+              <div className="d">{s.euroPerKm.toString().replace(".", ",")} EUR/km</div>
+            </div>
+          </div>
+        )}
+
+        <p className="subline"><b>PRIVÉLIMIET</b> &nbsp; Je jaarbudget in één oogopslag</p>
+        {s && (
+          <div style={{ maxWidth: 1330 }}>
+            <div className="progress-bar"><i style={{ width: pct + "%" }} /></div>
+            <div className="pipe-labels">
+              <span>0 km</span>
+              <span>{nls(s.priveKm)} / {nls(s.kmLimit)} km</span>
+              <span>{nls(s.kmLimit)} km</span>
+            </div>
+          </div>
+        )}
+
+        <p className="subline" style={{ marginTop: 22 }}><b>MAANDOVERZICHT JAN — DEC</b> · tabelweergave · <span style={{ color: "var(--cyan)" }}>Openingststanden automatisch doorberekend</span></p>
+
+        <div className="yr-tabel">
+          <div>
+            <div className="yr-head"><span>MAAND</span>
+              <span style={{ color: "var(--red)" }}>WERK</span>
+              <span style={{ color: "var(--red)" }}>PRIVÉ</span></div>
+            {s && s.months.map(m => (
+              <div className="yr-row" key={m.month}>
+                <a href={`/maand/${m.month}?y=${data?.year ?? year}`} className="m" style={{ textDecoration: "none", color: "inherit" }}>
+                  {MONTHS[m.month - 1]}
+                </a>
+                <div className={"w" + (m.totalKm > 0 ? " over" : "")}>{nls(m.totalKm)}</div>
+                <div className="p">{nls(m.priveKm)}</div>
+              </div>
+            ))}
+          </div>
+          <div className="side-total">
+            <div className="pill-title">totaal werk</div>
+            <div className="pill-big red">{s ? nls(s.totalKm) : "—"}</div>
+            <div className="pill-title">totaal privé</div>
+            <div className="pill-big">{s ? nls(s.priveKm) : "—"}</div>
+            <div className="pill-title">tot limiet</div>
+            <div className="pill-big">{s ? nls(s.kmLimit) : "—"}</div>
+            <div className="footnote">Openingsstand op 1 januari: <b>{data ? nls(data.openingOdometer) : "—"} km</b></div>
+            <div className="panel" style={compactPanel}>
+              <div className="stat-card" style={{ borderRadius: 12, padding: 14 }}>
+                <div className="k">Handmatige correctie — privé-jaartotaal bijsturen</div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <input value={correctie} onChange={e => setCorrectie(e.target.value)}
+                    style={{ width: 120, background: "#171b21", border: "1px solid rgba(255,255,255,.16)", color: "#fff", borderRadius: 8, padding: 9, fontSize: 14 }} />
+                  <button className="btn-main" style={{ margin: 0, width: "auto", padding: "0 18px", borderRadius: 8 }} onClick={saveCorrectie}>✓ Correctie opslaan</button>
+                </div>
+              </div>
+            </div>
+            <div className="panel" style={{ ...compactPanel, padding: 14 }}>
+              <div className="k" style={{ color: "var(--red)", letterSpacing: 1.5, fontWeight: 800, fontSize: 11 }}>JAARRECONCILIATIE</div>
+              <h3 style={{ margin: "2px 0 8px", fontFamily: "Georgia, serif" }}>Jaar afsluiten</h3>
+              <button className="btn-chip" onClick={closeYear}
+                disabled={data?.closed} style={data?.closed ? { opacity: .5, cursor: "default" } : {}}>
+                🔹 Afsluiting voorbereiden
+              </button>
+              {data?.closed && <small style={{ color: "var(--muted)", display: "block", marginTop: 6 }}>Jaar afgesloten op stand {data?.closingOdometer} km.</small>}
+            </div>
+          </div>
         </div>
       </main>
-      <button className="mobile-btn-fab" onClick={() => router.push("/invoeren")}>Km invoeren</button>
-      {delOpen && <DeleteDialog confirm={delConfirm} setConfirm={setDelConfirm} onClose={() => setDelOpen(false)} onDelete={deleteAccount} />}
+      <footer style={{ position: "fixed", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "space-between", padding: "8px 22px", fontSize: 12, color: "var(--muted)" }}>
+        <span>DE Km-Log · TUC RAIL</span>
+        <span>Server-side berekening · gevoelige gegevens · {year}</span>
+      </footer>
     </div>
   );
 }
 
-function fmt(n: number): string {
-  return n.toLocaleString("nl-BE");
-}
-
-function TopBar(props: {
-  year: number; role: string; closed?: boolean;
-  onYear: (y: number) => void; onLogout: () => void; onDel: (o: boolean) => void; onCloseYear?: () => void;
-}) {
-  return (
-    <div className="topbar">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="logo" src="/logo.png" alt="logo" />
-      <h1 className="britannic">Km-Log App</h1>
-      <select value={props.year} onChange={e => props.onYear(Number(e.target.value))} aria-label="JAAR SELECT">
-        {YEARS.map(y => <option key={y} value={y}>JAAR {y}</option>)}
-      </select>
-      <span className="spacer" />
-      {props.role === "ADMIN" && (<Link href="/admin" style={{ color: "#9fe", fontWeight: 700, marginRight: 4 }}>Admin-beheer</Link>)}
-      {props.onCloseYear && props.role === "ADMIN" && !props.closed && (
-        <button onClick={props.onCloseYear}>Jaar afsluiten</button>
-      )}
-      <button onClick={props.onLogout}>Afmelden</button>
-      <img className="fox" src="/fox.png" alt="" onClick={() => props.onDel(true)} style={{ cursor: "pointer" }} title="Account verwijderen" />
-    </div>
-  );
-}
-
-function MonthRaster(props: { m: MonthBlock; closed: boolean; isMobile: boolean; onEdit: (m: number, d: number, p: Partial<DayRow>) => Promise<void>; }) {
-  const { m } = props;
-  const monthTot = m.days.reduce((a, d) => a + (d.total ?? 0), 0);
-  const priveTot = m.days.reduce((a, d) => a + (d.priveKm ?? 0), 0);
-
-  if (props.isMobile) {
-    return (
-      <section>
-        <div className="month-head" style={{ background: "var(--charcoal)" }}>
-          <h2>{m.name}</h2>
-        </div>
-        {m.days.map(d => (
-          <DayCard key={d.day} d={d} closed={props.closed}
-            onEdit={p => props.onEdit(m.month, d.day, p)} />
-        ))}
-        <div className="month-total" style={{ padding: "8px 12px", background: "var(--charcoal)", color: "#fff" }}>
-          Totale maand: <b>{fmt(monthTot)} km</b> &nbsp;|&nbsp; Privé: <b>{fmt(priveTot)} km</b>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="month-block">
-      <div className="month-head">
-        <h2>{m.name}</h2>
-        <span className="open-stand">D/N | startDatum | eind datum | start | eind | totaal | totaal (privé km)</span>
-      </div>
-      <table className="raster">
-        <thead>
-          <tr>
-            <th aria-label="Kilometerstand">D/N</th><th>startDatum</th><th>eind datum</th>
-            <th>start</th><th>eind</th><th>totaal</th><th>totaal (privé km)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {m.days.map(d => (
-            <tr key={d.day} className={d.weekend ? "weekend" : ""}>
-              <td style={{ width: 56 }}>
-                <select value={d.dayNight} disabled={props.closed}
-                  onChange={e => props.onEdit(m.month, d.day, { dayNight: e.target.value as "D" | "N" })}>
-                  <option value="D">D</option><option value="N">N</option>
-                </select>
-              </td>
-              <td>{d.date}</td>
-              <td className="calc">{d.dayNight === "N" ? (d.endDatum ?? "") : ""}</td>
-              <td style={{ width: 90 }}>
-                <input inputMode="numeric" value={d.startKm ?? ""} disabled={props.closed}
-                  onChange={e => { const v = e.target.value.replace(/\D/g, ""); props.onEdit(m.month, d.day, { startKm: v === "" ? null : Number(v) }); }} />
-              </td>
-              <td style={{ width: 90 }}>
-                <input inputMode="numeric" value={d.endKm ?? ""} disabled={props.closed}
-                  onChange={e => { const v = e.target.value.replace(/\D/g, ""); props.onEdit(m.month, d.day, { endKm: v === "" ? null : Number(v) }); }} />
-              </td>
-              <td className="calc">{d.total !== null ? fmt(d.total) : ""}</td>
-              <td style={{ width: 90 }}>
-                <input id={"prive-" + m.month + "-" + d.day} inputMode="decimal" value={d.priveKm || ""} disabled={props.closed}
-                  onChange={e => {
-                    const v = parseFloat(e.target.value.replace(",", "."));
-                    props.onEdit(m.month, d.day, { priveKm: isNaN(v) ? 0 : v });
-                  }} />
-              </td>
-            </tr>
-          ))}
-          <tr className="month-total">
-            <td colSpan={5}>Totale maand</td><td>{fmt(monthTot)}</td><td>{fmt(priveTot)}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  );
-}
-
-function DayCard(props: { d: DayRow; closed: boolean; onEdit: (p: Partial<DayRow>) => Promise<void> }) {
-  const d = props.d;
-  return (
-    <div className={"day-card" + (d.weekend ? " weekend" : "")}>
-      <div className="row"><b>{d.date}</b><span>{d.weekday}</span></div>
-      <div className="row">
-        <label>D/N</label>
-        <select value={d.dayNight} disabled={props.closed} onChange={e => props.onEdit({ dayNight: e.target.value as "D" | "N" })}>
-          <option value="D">Dag</option><option value="N">Nacht</option>
-        </select>
-      </div>
-      <div className="row"><label>start</label><input inputMode="numeric" value={d.startKm ?? ""} disabled={props.closed} onChange={e => { const v = e.target.value.replace(/\D/g, ""); props.onEdit({ startKm: v === "" ? null : Number(v) }); }} /></div>
-      <div className="row"><label>eind</label><input inputMode="numeric" value={d.endKm ?? ""} disabled={props.closed} onChange={e => { const v = e.target.value.replace(/\D/g, ""); props.onEdit({ endKm: v === "" ? null : Number(v) }); }} /></div>
-      <div className="row"><label>totaal</label><span className="calc">{d.total !== null ? fmt(d.total) : ""}</span></div>
-      <div className="row"><label>privé</label><input inputMode="decimal" value={d.priveKm || ""} disabled={props.closed} onChange={e => { const v = parseFloat(e.target.value.replace(",", ".")); props.onEdit({ priveKm: isNaN(v) ? 0 : v }); }} /></div>
-    </div>
-  );
-}
-
-function DeleteDialog(props: {
-  confirm: string; setConfirm: (s: string) => void; onClose: () => void; onDelete: () => void;
-}) {
-  return (
-    <div className="secret-panel" style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", display: "grid", placeItems: "center", zIndex: 100 }}>
-      <div className="panel" style={{ maxWidth: 420, width: "90%" }}>
-        <h2 style={{ color: "#b00020" }}>Account verwijderen</h2>
-        <p>Alles gaat verloren: je ritten, jaren en instellingen. Typ je <b>gebruikersnaam</b> ter bevestiging.</p>
-        <input value={props.confirm} onChange={e => props.setConfirm(e.target.value)}
-          placeholder="gebruikersnaam" style={{ width: "100%", padding: 10, borderRadius: 6, border: "1px solid #bbb" }} />
-        <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-          <button style={{ flex: 1, padding: 10, border: "none", borderRadius: 6, background: "var(--brown)", color: "#fff", fontWeight: 700, cursor: "pointer" }} onClick={props.onClose}>Annuleren</button>
-          <button style={{ flex: 1, padding: 10, border: "none", borderRadius: 6, background: "#b00020", color: "#fff", fontWeight: 700, cursor: "pointer" }} onClick={props.onDelete}>VOLLEDIG WISSEN</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+function T2(y: number) { window.history.replaceState(null, "", `/?y=${y}`); }
+const compactPanel: React.CSSProperties = { background: "rgba(20,24,30,.92)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 12, padding: 0 };
