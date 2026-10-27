@@ -175,7 +175,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
                 <div className="pill-big">{nls(stat2)}</div>
               </div>
             </div>
-            <div className="pill-title">kies een maand</div>
+            <div className="picker-title">Maand</div>
             <div className="month-picker">
               {MONTHS_T.map((mn, i) => (
                 <a key={mn} href={`/maand/${i + 1}?y=${year}`}
@@ -199,7 +199,7 @@ export default function MaandPage({ params }: { params: Promise<{ m: string }> }
           </div>
         </div>
       </main>
-      <footer style={{ position: "fixed", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "space-between", padding: "8px 22px", fontSize: 12, color: "var(--muted)" }}>
+      <footer style={{ display: "flex", justifyContent: "space-between", padding: "8px 22px", fontSize: 12, color: "var(--muted)" }}>
         <span>DE Km-Log · TUC RAIL</span>
         <span>Server-side berekening · gevoelige gegevens · {MONTHS[m - 1]} {year}</span>
       </footer>

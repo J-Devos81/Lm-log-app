@@ -231,7 +231,7 @@ export default function JaarOverzichtPage() {
           </div>
         </div>
       </main>
-      <footer style={{ position: "fixed", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "space-between", padding: "8px 22px", fontSize: 12, color: "var(--muted)" }}>
+      <footer style={{ display: "flex", justifyContent: "space-between", padding: "8px 22px", fontSize: 12, color: "var(--muted)" }}>
         <span>DE Km-Log · TUC RAIL</span>
         <span>Server-side berekening · gevoelige gegevens · {year}</span>
       </footer>

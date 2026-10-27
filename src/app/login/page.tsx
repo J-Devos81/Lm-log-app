@@ -69,6 +69,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-split bg-odometer">
+      <div className="bg-scrim" />
       <div className="login-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="logo-dark" src="/logo.png" alt="TUC RAIL" />
