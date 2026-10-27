@@ -202,21 +202,20 @@ a { color: inherit; }
 .month-picker a {
   text-align: center; padding: 16px 6px; border-radius: 12px; text-decoration: none;
   background: linear-gradient(180deg, #33373d, #1b1e23);
-  border: 2px solid rgba(90,200,250,.85);
+  border: 2px solid rgba(120,128,138,.7);
   box-shadow: 0 4px 0 #0e1013, inset 0 1px 0 rgba(255,255,255,.14), 0 6px 14px rgba(0,0,0,.55);
-  color: #35c5ff; font-weight: 800; font-size: 12px; letter-spacing: 1px;
-  text-shadow: 2px 2px 0 #0a0d10, 0 0 8px rgba(53,197,255,.35);
+  color: #d5d9de; font-weight: 800; font-size: 12px; letter-spacing: 1px;
+  text-shadow: 2px 2px 0 #0a0d10;
 }
 .month-picker a:hover {
-  background: linear-gradient(180deg, #35c5ff, #189ad6);
-  border-color: #7fdcff; color: #06222e; text-shadow: none; filter: none;
-  transform: translateY(1px); box-shadow: 0 3px 0 #0e1013, 0 0 14px rgba(53,197,255,.6), inset 0 1px 0 rgba(255,255,255,.3);
+  border-color: #7fdcff; color: #35c5ff; text-shadow: 2px 2px 0 #0a0d10, 0 0 8px rgba(53,197,255,.35);
+  transform: translateY(1px); box-shadow: 0 3px 0 #0e1013, inset 0 1px 0 rgba(255,255,255,.14), 0 0 10px rgba(53,197,255,.3);
 }
 .month-picker a.current {
-  background: linear-gradient(180deg, #35c5ff, #189ad6);
-  border-color: #7fdcff; color: #06222e;
-  text-shadow: 0 1px 0 rgba(255,255,255,.35);
-  box-shadow: 0 4px 0 #0e1013, 0 0 16px rgba(53,197,255,.7), inset 0 1px 0 rgba(255,255,255,.3);
+  background: linear-gradient(180deg, #20262c, #14181d);
+  border-color: #35c5ff; color: #35c5ff;
+  text-shadow: 2px 2px 0 #0a0d10, 0 0 10px rgba(53,197,255,.45);
+  box-shadow: 0 4px 0 #0e1013, 0 0 14px rgba(53,197,255,.55), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .picker-title {
   text-align: center; margin: 0 0 4px; padding: 14px 10px;
